@@ -1,0 +1,41 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String         @id @default(auto()) @map("_id") @db.ObjectId
+  wallet_address String         @unique
+  tg_name        String?
+  balance        Float          @default(0)
+  claims         ClaimRequest[]
+}
+
+model ClaimRequest {
+  id         String      @id @default(auto()) @map("_id") @db.ObjectId
+  userWallet String
+  user       User        @relation(fields: [userWallet], references: [wallet_address])
+  amount     Float
+  tx         String?
+  lt         String?
+  signature  String      @unique
+  status     ClaimStatus @default(PENDING)
+  createdAt  DateTime    @default(now())
+}
+
+enum ClaimStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
