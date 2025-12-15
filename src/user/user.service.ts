@@ -62,19 +62,18 @@ export class UserService {
             .storeRef(signedDataCell)
             .endCell();
 
-        await this.prisma.$transaction([
-            this.prisma.claimRequest.create({
-                data: {
-                    userWallet: wallet_address,
-                    amount: user.balance,
-                    signature: sigBuf.toString("hex")
-                },
-            }),
-            this.prisma.user.update({
-                where: { wallet_address },
-                data: { balance: 0 },
-            }),
-        ]);
+        await this.prisma.claimRequest.create({
+            data: {
+                userWallet: wallet_address,
+                amount: user.balance,
+                signature: sigBuf.toString("hex")
+            },
+        })
+
+        await this.prisma.user.update({
+            where: { wallet_address },
+            data: { balance: 0 },
+        })
 
         return {
             payload: body.toBoc().toString('base64'),

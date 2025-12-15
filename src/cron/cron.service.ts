@@ -107,16 +107,15 @@ export class CronService {
         });
 
         for (const claim of oldClaims) {
-            await this.prisma.$transaction([
-                this.prisma.claimRequest.update({
-                    where: { id: claim.id },
-                    data: { status: 'FAILED' }
-                }),
-                this.prisma.user.update({
-                    where: { wallet_address: claim.userWallet },
-                    data: { balance: { increment: claim.amount } }
-                })
-            ]);
+            await this.prisma.claimRequest.update({
+                where: { id: claim.id },
+                data: { status: 'FAILED' }
+            })
+
+            await this.prisma.user.update({
+                where: { wallet_address: claim.userWallet },
+                data: { balance: { increment: claim.amount } }
+            })
         }
     }
 
